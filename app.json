@@ -2,9 +2,15 @@
   "expo": {
     "name": "AICA-mobile",
     "slug": "AICA-mobile",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
+    "assets": [
+      "./assets/fonts/"
+    ],
     "scheme": "aicamobile",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -19,7 +25,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.lozzzy.AICAmobile"
     },
     "web": {
       "output": "static",
@@ -38,11 +45,18 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "724d8313-f59e-4bb7-b1a5-0c23092b4297"
+      }
     }
   }
 }
