@@ -13,7 +13,6 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import api from '../api';
 
-// (타입 정의와 WordCard 컴포넌트는 이전과 동일합니다)
 interface Meaning {
     meaning: string;
 }
@@ -51,7 +50,6 @@ const WordCard = ({ item, onItemToggle }: { item: ProcessedWord; onItemToggle: (
 };
 
 
-// 홈 화면 메인 컴포넌트
 export default function HomeScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
@@ -141,7 +139,6 @@ export default function HomeScreen() {
     );
 }
 
-// --- 스타일시트 ---
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -150,7 +147,7 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'flex-end', // <-- 이 부분을 'center'에서 'flex-end'로 수정했습니다.
+        alignItems: 'flex-end', 
         paddingHorizontal: 20,
         paddingBottom: 20,
     },
