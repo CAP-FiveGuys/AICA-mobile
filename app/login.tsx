@@ -23,11 +23,14 @@ export default function Login() {
     const [id, setId] = useState("");
     const [password, setPassword] = useState("");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(""); 
 
     const isButtonEnabled = id.length > 0 && password.length > 0;
 
     const handleLogin = async () => {
         if (!isButtonEnabled) return;
+
+        setErrorMessage(""); 
 
         try {
             const response = await axios.post(
@@ -39,28 +42,31 @@ export default function Login() {
                 }
             );
 
+
             const { accessToken, refreshToken } = response.data.data;
-            const { message, data } = response.data;
 
             if (accessToken && refreshToken) {
                 await SecureStore.setItemAsync("accessToken", accessToken);
                 await SecureStore.setItemAsync("refreshToken", refreshToken);
 
+
                 router.replace("/home");
             } else {
-                Alert.alert("토큰을 받아오지 못했습니다.");
+                setErrorMessage("로그인 처리 중 문제가 발생했습니다. 다시 시도해 주세요.");
             }
         } catch (error) {
             console.error("Login Error:", error);
             if (axios.isAxiosError(error) && error.response) {
-                 if (error.response.status === 409) {
-                const errorMessage = error.response.data.message || "로그인에 실패했습니다.";
-                Alert.alert(errorMessage);
+                if (error.response.status === 409) {
+                    const msg = error.response.data.message || "아이디 또는 비밀번호가 잘못 되었습니다.";
+                    setErrorMessage(msg + " 아이디와 비밀번호를 정확히 입력해 주세요.");
+                } else if (error.response.status === 401) {
+                    setErrorMessage("인증에 실패했습니다. 아이디와 비밀번호를 확인해 주세요.");
                 } else {
-                    Alert.alert(`로그인 중 문제가 발생했습니다. (코드: ${error.response.status})`);
+                    setErrorMessage(`로그인 중 문제가 발생했습니다. (코드: ${error.response.status})`);
                 }
             } else {
-                Alert.alert("서버에 연결할 수 없습니다.");
+                setErrorMessage("서버에 연결할 수 없습니다. 네트워크 상태를 확인해 주세요.");
             }
         }
     };
@@ -90,7 +96,10 @@ export default function Login() {
                             style={styles.input}
                             placeholder="아이디를 입력하세요"
                             value={id}
-                            onChangeText={setId}
+                            onChangeText={(text) => {
+                                setId(text);
+                                setErrorMessage(""); 
+                            }}
                             autoCapitalize="none"
                         />
                     </View>
@@ -102,7 +111,10 @@ export default function Login() {
                                 style={styles.passwordInput}
                                 placeholder="비밀번호를 입력하세요"
                                 value={password}
-                                onChangeText={setPassword}
+                                onChangeText={(text) => {
+                                    setPassword(text);
+                                    setErrorMessage(""); 
+                                }}
                                 secureTextEntry={!isPasswordVisible}
                                 autoCapitalize="none"
                             />
@@ -114,6 +126,8 @@ export default function Login() {
                                 />
                             </TouchableOpacity>
                         </View>
+                        {/* 에러 메시지 표시 */}
+                        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
                     </View>
                 </View>
 
@@ -151,14 +165,13 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
-        // height: 60,
         justifyContent: "center",
+        paddingBottom: 10, 
     },
     content: {
         flex: 1,
-        justifyContent: "center",
         paddingHorizontal: 24,
-        marginTop: -300,
+        paddingTop: 40,
     },
     buttonContainer: {
         paddingHorizontal: 24,
@@ -167,8 +180,6 @@ const styles = StyleSheet.create({
     backButton: {
         padding: 8,
         marginLeft: 5,
-        marginTop: 30,
-
     },
     title: {
         fontSize: 24,
@@ -205,7 +216,7 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         borderRadius: 12,
         alignItems: "center",
-        marginTop: -200,
+        marginTop: 40, 
     },
     buttonDisabled: {
         backgroundColor: "#F2F2F7",
@@ -222,5 +233,12 @@ const styles = StyleSheet.create({
     },
     buttonTextEnabled: {
         color: "#000",
+    },
+    errorText: {
+        color: "red",
+        fontSize: 12,
+        marginTop: 8, 
+        textAlign: "left",
+        marginLeft: 5, 
     },
 });
