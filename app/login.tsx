@@ -13,8 +13,8 @@ import {
     TextInput,
     TouchableOpacity,
     View,
+    ScrollView,
 } from "react-native";
-import { API_URL } from '@env';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Login() {
@@ -23,33 +23,26 @@ export default function Login() {
     const [id, setId] = useState("");
     const [password, setPassword] = useState("");
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-    const [errorMessage, setErrorMessage] = useState(""); 
+    const [errorMessage, setErrorMessage] = useState("");
 
     const isButtonEnabled = id.length > 0 && password.length > 0;
 
     const handleLogin = async () => {
         if (!isButtonEnabled) return;
-
-        setErrorMessage(""); 
-
+        setErrorMessage("");
         try {
             const response = await axios.post(
-                `${API_URL}/api/login`,
+                `${process.env.EXPO_PUBLIC_API_URL}/api/login`,
                 {
                     userId: id,
                     password: password,
                     rememberMe: true
                 }
             );
-
-
             const { accessToken, refreshToken } = response.data.data;
-
             if (accessToken && refreshToken) {
                 await SecureStore.setItemAsync("accessToken", accessToken);
                 await SecureStore.setItemAsync("refreshToken", refreshToken);
-
-
                 router.replace("/home");
             } else {
                 setErrorMessage("로그인 처리 중 문제가 발생했습니다. 다시 시도해 주세요.");
@@ -74,18 +67,21 @@ export default function Login() {
     return (
         <SafeAreaView style={styles.safeArea}>
             <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={styles.container}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
             >
-                {/* Header */}
                 <View style={[styles.header, { paddingTop: insets.top }]}>
                     <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                         <Ionicons name="chevron-back-outline" size={28} color="black" />
                     </TouchableOpacity>
                 </View>
 
-                {/* Content */}
-                <View style={styles.content}>
+                <ScrollView
+                    style={styles.scrollContainer}
+                    contentContainerStyle={styles.scrollContentContainer}
+                    keyboardShouldPersistTaps="handled"
+                >
                     <Text style={styles.title}>
                         아이디와 비밀번호를{"\n"}입력하세요
                     </Text>
@@ -98,7 +94,7 @@ export default function Login() {
                             value={id}
                             onChangeText={(text) => {
                                 setId(text);
-                                setErrorMessage(""); 
+                                setErrorMessage("");
                             }}
                             autoCapitalize="none"
                         />
@@ -113,7 +109,7 @@ export default function Login() {
                                 value={password}
                                 onChangeText={(text) => {
                                     setPassword(text);
-                                    setErrorMessage(""); 
+                                    setErrorMessage("");
                                 }}
                                 secureTextEntry={!isPasswordVisible}
                                 autoCapitalize="none"
@@ -126,12 +122,10 @@ export default function Login() {
                                 />
                             </TouchableOpacity>
                         </View>
-                        {/* 에러 메시지 표시 */}
                         {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
                     </View>
-                </View>
+                </ScrollView>
 
-                {/* Footer */}
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity
                         style={[
@@ -166,16 +160,20 @@ const styles = StyleSheet.create({
     },
     header: {
         justifyContent: "center",
-        paddingBottom: 10, 
+        paddingBottom: 10,
     },
-    content: {
+    scrollContainer: {
         flex: 1,
+    },
+    scrollContentContainer: {
         paddingHorizontal: 24,
         paddingTop: 40,
+        paddingBottom: 20,
     },
     buttonContainer: {
         paddingHorizontal: 24,
         paddingBottom: 40,
+        paddingTop: 10,
     },
     backButton: {
         padding: 8,
@@ -216,7 +214,6 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         borderRadius: 12,
         alignItems: "center",
-        marginTop: 40, 
     },
     buttonDisabled: {
         backgroundColor: "#F2F2F7",
@@ -237,8 +234,8 @@ const styles = StyleSheet.create({
     errorText: {
         color: "red",
         fontSize: 12,
-        marginTop: 8, 
+        marginTop: 8,
         textAlign: "left",
-        marginLeft: 5, 
+        marginLeft: 5,
     },
 });

@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     FlatList,
     ActivityIndicator,
+    Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -26,11 +27,12 @@ interface ProcessedWord extends WordData {
     formattedMeanings: string;
     isMeaningVisible: boolean;
 }
+
 const WordCard = ({ item, onItemToggle }: { item: ProcessedWord; onItemToggle: (id: string) => void }) => {
     const uniqueId = `${item.wordId}-${item.sentenceId}`;
     return (
         <View style={styles.card}>
-            <View style={styles.cardContent}>
+            <View style={styles.wordRow}>
                 <TouchableOpacity
                     style={[
                         styles.meaningToggle,
@@ -39,16 +41,15 @@ const WordCard = ({ item, onItemToggle }: { item: ProcessedWord; onItemToggle: (
                     onPress={() => onItemToggle(uniqueId)}
                 />
                 <Text style={styles.wordText}>{item.word}</Text>
-                {item.isMeaningVisible && (
-                    <Text style={styles.meaningText} numberOfLines={1}>
-                        {item.formattedMeanings}
-                    </Text>
-                )}
             </View>
+            {item.isMeaningVisible && (
+                <Text style={styles.meaningText}>
+                    {item.formattedMeanings}
+                </Text>
+            )}
         </View>
     );
 };
-
 
 export default function HomeScreen() {
     const router = useRouter();
@@ -111,7 +112,6 @@ export default function HomeScreen() {
 
     return (
         <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-            {/* --- 헤더 --- */}
             <View style={styles.header}>
                 <TouchableOpacity style={styles.toggleAllButton} onPress={handleToggleAllMeanings}>
                     <View style={[styles.checkbox, { backgroundColor: showAllMeanings ? '#000' : '#FFF' }]} />
@@ -120,7 +120,10 @@ export default function HomeScreen() {
 
                 <View style={styles.headerIcons}>
                     <TouchableOpacity onPress={() => router.push('/mypage')}>
-                        <Ionicons name="person-circle-outline" size={32} color="black" />
+                        <Image
+                            source={require('../assets/images/mypage-icon2.png')}
+                            style={styles.mypageIcon}
+                        />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={fetchWords} style={{ marginTop: 8 }}>
                         <Ionicons name="refresh-outline" size={30} color="black" />
@@ -128,7 +131,6 @@ export default function HomeScreen() {
                 </View>
             </View>
 
-            {/* --- 단어 목록 --- */}
             <FlatList
                 data={words}
                 renderItem={({ item }) => <WordCard item={item} onItemToggle={handleItemToggle} />}
@@ -147,7 +149,7 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'flex-end', 
+        alignItems: 'flex-end',
         paddingHorizontal: 20,
         paddingBottom: 20,
     },
@@ -167,16 +169,24 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
     },
+    mypageIcon: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+    },
     listContainer: {
         paddingHorizontal: 20,
     },
     card: {
         backgroundColor: '#F7F7F7',
         borderRadius: 12,
-        padding: 20,
+        paddingVertical: 22,
+        paddingHorizontal: 20,
         marginBottom: 12,
+        minHeight: 80,
+        justifyContent: 'center',
     },
-    cardContent: {
+    wordRow: {
         flexDirection: 'row',
         alignItems: 'center',
     },
@@ -189,13 +199,12 @@ const styles = StyleSheet.create({
     wordText: {
         fontSize: 18,
         fontWeight: 'bold',
-        flexShrink: 1,
     },
     meaningText: {
         fontSize: 14,
         color: '#555',
-        marginLeft: 'auto',
-        paddingLeft: 10,
-        flexShrink: 1,
+        marginTop: 10,
+        marginLeft: 40,
+        lineHeight: 20,
     },
 });
